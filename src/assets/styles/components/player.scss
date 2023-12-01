@@ -1,0 +1,71 @@
+.player {
+  position: relative;
+  width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  -webkit-box-shadow: 0px 0px 95px 89px rgba(23, 29, 227, 0.2);
+  -moz-box-shadow: 0px 0px 95px 89px rgba(23, 29, 227, 0.2);
+  box-shadow: 0px 0px 95px 89px rgba(23, 29, 227, 0.2);
+  border-radius: 20px;
+  border: 1px solid darkblue;
+
+  &__equalizer {
+    width: 98%;
+    height: 50px;
+  }
+
+  &__playlist {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__track {
+    color: lightblue;
+    transition: color 0.2s linear;
+    text-decoration: none;
+
+    i {
+      width: 12px;
+    }
+
+    &:hover {
+      color: white;
+    }
+  }
+
+  &__button {
+    position: absolute;
+    top: 15px;
+    width: 70px;
+    height: 70px;
+    background-color: transparent;
+    padding: 0;
+    border: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    cursor: pointer;
+
+    &_pause {
+      right: 20px;
+      background-image: url("../img/pause.png");
+    }
+
+    &_play {
+      left: 20px;
+      background-image: url("../img/play.png");
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:active {
+      opacity: 0.5;
+    }
+  }
+}

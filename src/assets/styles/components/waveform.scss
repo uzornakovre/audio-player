@@ -1,0 +1,46 @@
+#waveform {
+  cursor: pointer;
+  position: relative;
+  background-color: rgba(116, 19, 227, 0.3);
+  border-radius: 8px;
+  padding: 4px;
+  order: 10;
+  width: 100%;
+  -webkit-box-shadow: 0px 0px 8px 5px rgba(188, 227, 23, 0.2) inset;
+  -moz-box-shadow: 0px 0px 8px 5px rgba(188, 227, 23, 0.2) inset;
+  box-shadow: 0px 0px 8px 5px rgba(188, 227, 23, 0.2) inset;
+}
+#hover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  pointer-events: none;
+  height: 100%;
+  width: 0;
+  mix-blend-mode: overlay;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+#waveform:hover #hover {
+  opacity: 1;
+}
+#time,
+#duration {
+  position: absolute;
+  z-index: 11;
+  top: 50%;
+  margin-top: -1px;
+  transform: translateY(-50%);
+  font-size: 11px;
+  background: rgba(0, 0, 0, 0.75);
+  padding: 2px;
+  color: #ddd;
+}
+#time {
+  left: 0;
+}
+#duration {
+  right: 0;
+}
