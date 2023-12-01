@@ -24,8 +24,8 @@ export default class Player {
     }
 
     if (this.wavesurfer.media.paused) {
-      this._setPauseIcon(audioItem);
-    } else this._setPlayIcon(audioItem);
+      this._setPauseStyle(audioItem);
+    } else this._setPlayStyle(audioItem);
 
     if (
       !this.audioElement.src.includes(this.currentSrc) ||
@@ -36,11 +36,11 @@ export default class Player {
 
       this.wavesurfer.on("ready", () => {
         this.wavesurfer.play();
-        this._setIcon();
+        this._setStyle();
         console.log(this.currentSrc);
       });
 
-      this._setPauseIcon(audioItem);
+      this._setPauseStyle(audioItem);
     } else {
       this.wavesurfer.playPause();
     }
@@ -77,7 +77,7 @@ export default class Player {
     this.playlist.forEach((track) => {
       const audioItem = document.createElement("a"); // для каждого трека создаем ссылку
       audioItem.classList.add("player__track");
-      audioItem.innerHTML = `<i class="fa fa-play"></i>  ${track.name}`;
+      audioItem.innerHTML = `<i class="fa fa-play"></i>${track.name}`;
       audioItem.href = track.url; // присваеваем аттрибуту href значение url
       this._setEventListener(audioItem, track.id); // вешаем слушатели
       playlistElement.appendChild(audioItem);
@@ -175,8 +175,12 @@ export default class Player {
     );
 
     this.wavesurfer.on("load", () => {
-      this._setIcon();
+      this._setStyle();
       console.log(this.currentSrc);
+    });
+
+    this.wavesurfer.on("play", () => {
+      this._setStyle();
     });
 
     this.wavesurfer.on("interaction", () => {
@@ -185,7 +189,6 @@ export default class Player {
 
     this.wavesurfer.on("finish", () => {
       this._loadNextTrack();
-      // this._setIcon();
     });
 
     const hover = this.player.querySelector("#hover");
@@ -242,8 +245,8 @@ export default class Player {
 
       for (let i = 0; i < bufferLength; i++) {
         barHeight = dataArray[i] - 40; // высота полоски
-        const g = barHeight + 100 * (i / bufferLength); // цвет полоски
-        ctx.fillStyle = `rgb(100, ${g}, 240)`;
+        const g = barHeight + 250 * (i / bufferLength); // цвет полоски
+        ctx.fillStyle = `rgb(255, ${g}, 0)`;
         ctx.fillRect(bar, canvas.height - barHeight, barWidth, barHeight);
         bar += barWidth + 2;
       }
@@ -252,27 +255,29 @@ export default class Player {
     renderFrame();
   }
 
-  _setPauseIcon(elem) {
+  _setPauseStyle(elem) {
+    elem.classList.add("player__track_active");
     const icon = elem.querySelector("i");
     icon.classList.add("fa-pause");
     icon.classList.remove("fa-play");
   }
 
-  _setPlayIcon(elem) {
+  _setPlayStyle(elem) {
+    elem.classList.remove("player__track_active");
     const icon = elem.querySelector("i");
     icon.classList.remove("fa-pause");
     icon.classList.add("fa-play");
   }
 
-  _setIcon() {
+  _setStyle() {
     const playlistItems = this.player.querySelectorAll(".player__track");
 
     Array.from(playlistItems).forEach((item) => {
-      this._setPlayIcon(item);
+      this._setPlayStyle(item);
       if (!item.href.includes(this.currentSrc)) {
-        this._setPlayIcon(item);
+        this._setPlayStyle(item);
       } else if (this.currentSrc && item.href.includes(this.currentSrc)) {
-        this._setPauseIcon(item);
+        this._setPauseStyle(item);
       }
     });
   }
