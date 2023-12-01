@@ -11,6 +11,7 @@ export default class Player {
 
   // обработчик клика по треку
   _handleTrackClick(audioItem) {
+    this.player.querySelector("#message").classList.add("invisible");
     if (this.currentSrc !== audioItem.getAttribute("href")) {
       this.currentSrc = audioItem.getAttribute("href");
     }
