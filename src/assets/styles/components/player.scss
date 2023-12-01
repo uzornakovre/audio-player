@@ -1,5 +1,6 @@
 .player {
   position: absolute;
+  box-sizing: border-box;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -15,6 +16,11 @@
   box-shadow: 0px 0px 95px 89px rgba(23, 29, 227, 0.2);
   border-radius: 20px;
   border: 1px solid darkblue;
+
+  @media screen and (max-width: 767px) {
+    width: 95vw;
+    height: 95dvh;
+  }
 
   &__equalizer {
     width: 98%;
@@ -94,6 +100,10 @@
     right: -40px;
     top: 90px;
     cursor: pointer;
+
+    @media screen and (max-width: 767px) {
+      display: none;
+    }
   }
 
   &__volume-icon {
@@ -104,6 +114,10 @@
 
     i {
       color: inherit;
+    }
+
+    @media screen and (max-width: 767px) {
+      display: none;
     }
   }
 }
