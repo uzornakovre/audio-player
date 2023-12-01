@@ -153,6 +153,7 @@ export default class Player {
       waveColor: gradient,
       progressColor: progressGradient,
       barWidth: 2,
+      height: 100,
     });
 
     // Current time & duration
