@@ -177,7 +177,6 @@ export default class Player {
 
     this.wavesurfer.on("load", () => {
       this._setStyle();
-      console.log(this.currentSrc);
     });
 
     this.wavesurfer.on("ready", () => {
