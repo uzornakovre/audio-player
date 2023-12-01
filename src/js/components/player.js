@@ -3,29 +3,30 @@ import WaveSurfer from "wavesurfer.js";
 export default class Player {
   constructor(selector = ".player", playlist = []) {
     this.player = document.querySelector(selector);
-    this.playlist = playlist;
-    this.currentId = 1;
-    this.audioContext = null;
-    this.currentSrc = null;
+    this.playlist = playlist; // плейлист
+    this.currentId = 1; // текущий id трека в плейлисте
+    this.audioContext = null; // аудио контекст
+    this.currentSrc = null; // текущее значение src для аудио
   }
 
+  // обработчик клика по треку
   _handleTrackClick(audioItem) {
     if (this.currentSrc !== audioItem.getAttribute("href")) {
       this.currentSrc = audioItem.getAttribute("href");
     }
 
-    console.log(this.wavesurfer);
     this._handlePlayPause(audioItem);
   }
 
+  // обработчик Play / Pause
   _handlePlayPause(audioItem) {
     if (!this.audioContext) {
       this._createVisualiser(); // создаем визуализатор
     }
 
     if (this.wavesurfer.media.paused) {
-      this._setPauseStyle(audioItem);
-    } else this._setPlayStyle(audioItem);
+      this._setPlayStyle(audioItem);
+    } else this._setPauseStyle(audioItem);
 
     if (
       !this.audioElement.src.includes(this.currentSrc) ||
@@ -33,19 +34,13 @@ export default class Player {
     ) {
       this.audioElement.src = this.currentSrc;
       this.wavesurfer.load(this.currentSrc);
-
-      this.wavesurfer.on("ready", () => {
-        this.wavesurfer.play();
-        this._setStyle();
-        console.log(this.currentSrc);
-      });
-
-      this._setPauseStyle(audioItem);
+      this._setPlayStyle(audioItem);
     } else {
       this.wavesurfer.playPause();
     }
   }
 
+  // фугкция, которая отвечает за запуск следующего трека
   _loadNextTrack() {
     this.currentId++;
 
@@ -65,6 +60,7 @@ export default class Player {
     });
   }
 
+  // прочие слушатели
   _setEventListeners() {
     this.volumeElement.addEventListener("input", (evt) => {
       this.wavesurfer.media.volume = evt.target.value / 100;
@@ -73,11 +69,10 @@ export default class Player {
 
   // метод создания элемента "плейлист"
   _createPlaylistElement(playlistElement) {
-    // проходимся циклом по плейлисту
     this.playlist.forEach((track) => {
       const audioItem = document.createElement("a"); // для каждого трека создаем ссылку
       audioItem.classList.add("player__track");
-      audioItem.innerHTML = `<i class="fa fa-play"></i>${track.name}`;
+      audioItem.innerHTML = `<i class="fa fa-play"></i>${track.name}`; // добавляем название с иконкой
       audioItem.href = track.url; // присваеваем аттрибуту href значение url
       this._setEventListener(audioItem, track.id); // вешаем слушатели
       playlistElement.appendChild(audioItem);
@@ -91,7 +86,7 @@ export default class Player {
     playlistElement.classList.add("player__playlist");
     this.visualiser = document.createElement("canvas"); // создаем элемент <canvas> для визуализации
     this.visualiser.classList.add("player__equalizer");
-    this.volumeElement = document.createElement("input");
+    this.volumeElement = document.createElement("input"); // регулятор громкости
     this.volumeElement.type = "range";
     this.volumeElement.value = 80;
     this.volumeElement.min = 0;
@@ -103,12 +98,13 @@ export default class Player {
     this.player.appendChild(this.visualiser);
     this.player.appendChild(this.volumeElement);
 
-    this.createWaveForm();
+    this._createWaveForm();
     this._setEventListeners();
     this._createPlaylistElement(playlistElement);
   }
 
-  createWaveForm() {
+  // функция отвечающая за элемент waveform из библиотеки wavesurfer.js
+  _createWaveForm() {
     const container = this.player.querySelector("#waveform");
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -179,6 +175,11 @@ export default class Player {
       console.log(this.currentSrc);
     });
 
+    this.wavesurfer.on("ready", () => {
+      this.wavesurfer.play();
+      this._setStyle();
+    });
+
     this.wavesurfer.on("play", () => {
       this._setStyle();
     });
@@ -200,7 +201,7 @@ export default class Player {
       );
   }
 
-  // метод создания визуализатора
+  // метод создания визуализатора в виде эквалайзера
   _createVisualiser() {
     this.audioContext = new AudioContext();
     this.src = this.audioContext.createMediaElementSource(
@@ -255,29 +256,32 @@ export default class Player {
     renderFrame();
   }
 
-  _setPauseStyle(elem) {
+  // функция установки стилей для элемента плейлиста во время воспроизведения
+  _setPlayStyle(elem) {
     elem.classList.add("player__track_active");
     const icon = elem.querySelector("i");
     icon.classList.add("fa-pause");
     icon.classList.remove("fa-play");
   }
 
-  _setPlayStyle(elem) {
+  // функция установки стилей для элемента плейлиста во время паузы
+  _setPauseStyle(elem) {
     elem.classList.remove("player__track_active");
     const icon = elem.querySelector("i");
     icon.classList.remove("fa-pause");
     icon.classList.add("fa-play");
   }
 
+  // общая функция установки стилей элементов плейлиста
   _setStyle() {
     const playlistItems = this.player.querySelectorAll(".player__track");
 
     Array.from(playlistItems).forEach((item) => {
-      this._setPlayStyle(item);
+      this._setPauseStyle(item);
       if (!item.href.includes(this.currentSrc)) {
-        this._setPlayStyle(item);
-      } else if (this.currentSrc && item.href.includes(this.currentSrc)) {
         this._setPauseStyle(item);
+      } else if (this.currentSrc && item.href.includes(this.currentSrc)) {
+        this._setPlayStyle(item);
       }
     });
   }
