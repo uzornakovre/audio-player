@@ -264,6 +264,7 @@ export default class Player {
   // функция установки стилей для элемента плейлиста во время воспроизведения
   _setPlayStyle(elem) {
     elem.classList.add("player__track_active");
+    elem.classList.remove("player__track_paused");
     const icon = elem.querySelector("i");
     icon.classList.add("fa-pause");
     icon.classList.remove("fa-play");
@@ -272,6 +273,11 @@ export default class Player {
   // функция установки стилей для элемента плейлиста во время паузы
   _setPauseStyle(elem) {
     elem.classList.remove("player__track_active");
+    if (elem.href.includes(this.currentSrc)) {
+      elem.classList.add("player__track_paused");
+    } else {
+      elem.classList.remove("player__track_paused");
+    }
     const icon = elem.querySelector("i");
     icon.classList.remove("fa-pause");
     icon.classList.add("fa-play");
