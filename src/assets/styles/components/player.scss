@@ -61,38 +61,6 @@
     }
   }
 
-  &__button {
-    position: absolute;
-    top: 15px;
-    width: 70px;
-    height: 70px;
-    background-color: transparent;
-    padding: 0;
-    border: none;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    cursor: pointer;
-
-    &_pause {
-      right: 20px;
-      background-image: url("../img/pause.png");
-    }
-
-    &_play {
-      left: 20px;
-      background-image: url("../img/play.png");
-    }
-
-    &:hover {
-      opacity: 0.8;
-    }
-
-    &:active {
-      opacity: 0.5;
-    }
-  }
-
   &__volume {
     position: absolute;
     width: 150px;
