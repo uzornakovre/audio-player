@@ -4,25 +4,17 @@ export default class Player {
   constructor(selector = ".player", playlist = []) {
     this.player = document.querySelector(selector);
     this.playlist = playlist;
-    this.currentTrack = null;
+    this.currentId = 1;
     this.audioContext = null;
     this.currentSrc = null;
   }
 
-  _setCurrentSrc(audioItem) {
-    this.currentTrack = audioItem;
-    this.currentSrc = this.currentTrack.getAttribute("href");
-  }
-
   _handleTrackClick(audioItem) {
-    const playlistItems = this.player.querySelectorAll(".player__track");
-    Array.from(playlistItems).forEach((item) => {
-      if (item.src !== this.currentSrc) {
-        this._setPlayIcon(item);
-      }
-    });
+    if (this.currentSrc !== audioItem.getAttribute("href")) {
+      this.currentSrc = audioItem.getAttribute("href");
+    }
 
-    this._setCurrentSrc(audioItem);
+    console.log(this.wavesurfer);
     this._handlePlayPause(audioItem);
   }
 
@@ -41,63 +33,53 @@ export default class Player {
     ) {
       this.audioElement.src = this.currentSrc;
       this.wavesurfer.load(this.currentSrc);
-      this._startPlayWhenReady();
+
+      this.wavesurfer.on("ready", () => {
+        this.wavesurfer.play();
+        this._setIcon();
+        console.log(this.currentSrc);
+      });
+
       this._setPauseIcon(audioItem);
     } else {
       this.wavesurfer.playPause();
     }
   }
 
-  _startPlayWhenReady() {
-    this.wavesurfer.on("ready", () => {
-      this.wavesurfer.play();
-    });
+  _loadNextTrack() {
+    this.currentId++;
+
+    const nextItem = this.playlist.find((item) => item.id === this.currentId);
+
+    this.currentSrc = nextItem.url;
+    this.audioElement.src = this.currentSrc;
+    this.wavesurfer.load(nextItem.url);
   }
 
-  // метод установки слушателей событий
-  _setEventListeners(audioItem) {
-    // const playButton = this.player.querySelector(".player__button_play");
-    // const pauseButton = this.player.querySelector(".player__button_pause");
-
+  // метод установки слушателя событий для audioItem
+  _setEventListener(audioItem, id) {
     audioItem.addEventListener("click", (evt) => {
       evt.preventDefault();
       this._handleTrackClick(audioItem);
+      this.currentId = id;
     });
+  }
 
-    // playButton.addEventListener("click", () => {
-    //   if (!this.currentSrc) {
-    //     this._setCurrentSrc(audioItem);
-    //     this.wavesurfer.load(this.currentSrc);
-    //   }
-
-    //   this._handlePlayPause();
-    // });
-    // pauseButton.addEventListener("click", () => this.wavesurfer.pause());
-
-    const hover = this.player.querySelector("#hover");
-    const waveform = this.player.querySelector("#waveform");
-    waveform &&
-      waveform.addEventListener(
-        "pointermove",
-        (e) => (hover.style.width = `${e.offsetX}px`)
-      );
+  _setEventListeners() {
+    this.volumeElement.addEventListener("input", (evt) => {
+      this.wavesurfer.media.volume = evt.target.value / 100;
+    });
   }
 
   // метод создания элемента "плейлист"
   _createPlaylistElement(playlistElement) {
     // проходимся циклом по плейлисту
     this.playlist.forEach((track) => {
-      // const playlistItem = document.createElement("li");
-      // playlistItem.classList.add("player__track");
-      // playlistElement.appendChild(playlistItem);
-
       const audioItem = document.createElement("a"); // для каждого трека создаем ссылку
       audioItem.classList.add("player__track");
       audioItem.innerHTML = `<i class="fa fa-play"></i>  ${track.name}`;
       audioItem.href = track.url; // присваеваем аттрибуту href значение url
-      // audioItem.textContent = track.name; // в textContent записываем название трека
-
-      this._setEventListeners(audioItem); // вешаем слушатели
+      this._setEventListener(audioItem, track.id); // вешаем слушатели
       playlistElement.appendChild(audioItem);
     });
   }
@@ -107,20 +89,22 @@ export default class Player {
     this.audioElement = new Audio(); // создаем элемент <audio>
     const playlistElement = document.createElement("div"); // создаем контейнер для плейлиста
     playlistElement.classList.add("player__playlist");
-    // const playButton = document.createElement("button"); // создаем кнопку play/pause
-    // playButton.classList.add("player__button", "player__button_play");
-    // const pauseButton = document.createElement("button"); // создаем кнопку play/pause
-    // pauseButton.classList.add("player__button", "player__button_pause");
     this.visualiser = document.createElement("canvas"); // создаем элемент <canvas> для визуализации
     this.visualiser.classList.add("player__equalizer");
+    this.volumeElement = document.createElement("input");
+    this.volumeElement.type = "range";
+    this.volumeElement.value = 80;
+    this.volumeElement.min = 0;
+    this.volumeElement.max = 100;
+    this.volumeElement.classList.add("player__volume");
 
     this.player.appendChild(this.audioElement);
     this.player.appendChild(playlistElement);
     this.player.appendChild(this.visualiser);
-    // this.player.appendChild(playButton);
-    // this.player.appendChild(pauseButton);
+    this.player.appendChild(this.volumeElement);
 
     this.createWaveForm();
+    this._setEventListeners();
     this._createPlaylistElement(playlistElement);
   }
 
@@ -190,9 +174,27 @@ export default class Player {
       (currentTime) => (timeEl.textContent = formatTime(currentTime))
     );
 
+    this.wavesurfer.on("load", () => {
+      this._setIcon();
+      console.log(this.currentSrc);
+    });
+
     this.wavesurfer.on("interaction", () => {
       this.wavesurfer.play();
     });
+
+    this.wavesurfer.on("finish", () => {
+      this._loadNextTrack();
+      // this._setIcon();
+    });
+
+    const hover = this.player.querySelector("#hover");
+    const waveform = this.player.querySelector("#waveform");
+    waveform &&
+      waveform.addEventListener(
+        "pointermove",
+        (e) => (hover.style.width = `${e.offsetX}px`)
+      );
   }
 
   // метод создания визуализатора
@@ -216,12 +218,12 @@ export default class Player {
     // AudioContext.destination Содержит ссылку на AudioDestinationNode, представляющий собой
     // точку назначения  для всего аудио в этом контексте. Может рассматриваться как, например,
     // аудио-воспроизводящее устройство.
-    analyser.fftSize = 128;
+    analyser.fftSize = 256;
     const bufferLength = analyser.frequencyBinCount;
     // СfrequencyBinCount - свойство AnalyserNode, доступное только для чтения,
     // содержит общее количество точек данных, доступных для AudioContext sampleRate
     const dataArray = new Uint8Array(bufferLength); // создаем 8-битный массив
-    const barWidth = canvas.width / bufferLength;
+    const barWidth = (canvas.width / bufferLength) * 0.3;
     let barHeight;
     let bar;
 
@@ -240,8 +242,8 @@ export default class Player {
 
       for (let i = 0; i < bufferLength; i++) {
         barHeight = dataArray[i] - 40; // высота полоски
-        const r = barHeight + 25 * (i / bufferLength); // цвет полоски
-        ctx.fillStyle = `rgb(${r}, 50, 255)`;
+        const g = barHeight + 100 * (i / bufferLength); // цвет полоски
+        ctx.fillStyle = `rgb(100, ${g}, 240)`;
         ctx.fillRect(bar, canvas.height - barHeight, barWidth, barHeight);
         bar += barWidth + 2;
       }
@@ -260,5 +262,18 @@ export default class Player {
     const icon = elem.querySelector("i");
     icon.classList.remove("fa-pause");
     icon.classList.add("fa-play");
+  }
+
+  _setIcon() {
+    const playlistItems = this.player.querySelectorAll(".player__track");
+
+    Array.from(playlistItems).forEach((item) => {
+      this._setPlayIcon(item);
+      if (!item.href.includes(this.currentSrc)) {
+        this._setPlayIcon(item);
+      } else if (this.currentSrc && item.href.includes(this.currentSrc)) {
+        this._setPauseIcon(item);
+      }
+    });
   }
 }

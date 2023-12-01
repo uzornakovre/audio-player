@@ -7,10 +7,12 @@ const player = new Player(".player", [
   {
     name: "Gaddy - Bonus",
     url: track1,
+    id: 1,
   },
   {
     name: "Intermixture - Terraforma",
     url: track2,
+    id: 2,
   },
 ]);
 
