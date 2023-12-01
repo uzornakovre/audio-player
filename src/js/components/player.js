@@ -45,10 +45,14 @@ export default class Player {
     this.currentId++;
 
     const nextItem = this.playlist.find((item) => item.id === this.currentId);
-
-    this.currentSrc = nextItem.url;
-    this.audioElement.src = this.currentSrc;
-    this.wavesurfer.load(nextItem.url);
+    if (nextItem) {
+      this.currentSrc = nextItem.url;
+      this.audioElement.src = this.currentSrc;
+      this.wavesurfer.load(nextItem.url);
+    } else {
+      this.currentId = 0;
+      this._loadNextTrack();
+    }
   }
 
   // метод установки слушателя событий для audioItem
