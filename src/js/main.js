@@ -29,7 +29,7 @@ const player = new Player(".player", [
     id: 4,
   },
   {
-    name: "Gaddy - Bonus",
+    name: "Gaddy - When It Goes Down",
     url: track5,
     id: 5,
   },
